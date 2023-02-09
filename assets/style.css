@@ -1,0 +1,9 @@
+.container {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.card {
+    width: 200px;
+    margin-right: 10px;
+}
