@@ -73,8 +73,11 @@ function storeCity(cityName) {
   } else {
     cityData = JSON.parse(cityData);
   }
-  cityData.push(cityName);
-  localStorage.setItem("cities", JSON.stringify(cityData));
+  if (!cityData.includes(cityName)) {
+    cityData.push(cityName);
+    localStorage.setItem("cities", JSON.stringify(cityData));
+    displayPreviousSearches();
+  }
 }
 //Grabbing our previously searched cities from local storage and displaying them as buttons to be clicked on. *Currently this code is not working*
 function displayPreviousSearches() {
@@ -82,20 +85,18 @@ function displayPreviousSearches() {
   if (cityData === null) {
     return;
   }
-  cityData=JSON.parse(cityData);
+  cityData = JSON.parse(cityData);
+  let previousSearchesElement = document.getElementById("previous-searches");
+  previousSearchesElement.innerHTML = ""; //This will clear the previous searches element
   for (let city of cityData) {
     let cityButton = document.createElement("button");
     cityButton.innerHTML = city;
-    cityButton.onclick = function() {
-      displayCity()
-    };
-    document.getElementById("previous-searches").appendChild(cityButton);
+    cityButton.addEventListener("click", function() {
+      weather();
+    });
+    previousSearchesElement.appendChild(cityButton);
   }
 }
-
-window.onload = function() {
-  displayPreviousSearches();
-};
 }
 
 weather()
