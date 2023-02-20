@@ -1,12 +1,42 @@
 //Sets cityName and displayCity to the global scope
 let cityName;
-let displayCity;
+const apiKey = 'e4301057cd4c095dc3d480e29dd18522';
+const units = "imperial";
+
+$(document).ready(function() {
+  $("#searchBtn").click(function() {
+    cityName = $("#searchCity").val();
+    searchWeather(cityName);
+  });
+  displayPreviousSearches();
+});
+
+function searchWeather(cityName) {
+  weather(cityName);
+  displayPreviousSearches();
+}
+
+//Grabbing our previously searched cities from local storage and displaying them as buttons to be clicked on. *Currently this code is not working*
+function displayPreviousSearches() {
+  let cityData = localStorage.getItem("cities");
+  if (cityData === null) {
+    return;
+  }
+  cityData = JSON.parse(cityData);
+  let previousSearchesElement = document.getElementById("previous-searches");
+  previousSearchesElement.innerHTML = ""; //This will clear the previous searches element
+  for (let city of cityData) {
+    let cityButton = document.createElement("button");
+    cityButton.innerHTML = city;
+    cityButton.addEventListener("click", function() {
+      searchWeather(city);
+    });
+    previousSearchesElement.appendChild(cityButton);
+  }
+}
+
 //This will be our main function to access our api and show not only the 5-day forecast but also the current forecast.
-function weather() {
-$('#searchBtn').click(function() {
-  cityName = $("#searchCity").val();
-  units = "imperial"
-  let apiKey = 'e4301057cd4c095dc3d480e29dd18522';  
+function weather(cityName) {
   var requestWeatherUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${cityName}&appid=${apiKey}&units=${units}`
   var requestCurrentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=${units}`
 //Grabbing our URL and displaying our 5-day Forecast
@@ -14,7 +44,7 @@ $('#searchBtn').click(function() {
   .then(function (response) {
     return response.json();
   }) 
-  .then( function(data) {
+  .then(function(data) {
     var list = data.list;
     var weatherDiv = document.querySelector("#forecast");
     weatherDiv.innerHTML = "";
@@ -34,6 +64,8 @@ $('#searchBtn').click(function() {
                             <p class="card-text">Humidity: ${humidity}%</p>
                             </div>`;
     }
+    storeCity(cityName);
+    displayPreviousSearches();
   })
   .catch(function(error) {
     console.error("An error has occured:", error)
@@ -62,9 +94,8 @@ $('#searchBtn').click(function() {
   })
   .catch(function(error) {
     console.error("An error has occured:", error)
-  })
-  storeCity(cityName);
-})
+  });
+
 //Storing our previously searched cities into local storage.
 function storeCity(cityName) {
   let cityData = localStorage.getItem("cities");
@@ -76,27 +107,6 @@ function storeCity(cityName) {
   if (!cityData.includes(cityName)) {
     cityData.push(cityName);
     localStorage.setItem("cities", JSON.stringify(cityData));
-    displayPreviousSearches();
-  }
+  };
+};
 }
-//Grabbing our previously searched cities from local storage and displaying them as buttons to be clicked on. *Currently this code is not working*
-function displayPreviousSearches() {
-  let cityData = localStorage.getItem("cities");
-  if (cityData === null) {
-    return;
-  }
-  cityData = JSON.parse(cityData);
-  let previousSearchesElement = document.getElementById("previous-searches");
-  previousSearchesElement.innerHTML = ""; //This will clear the previous searches element
-  for (let city of cityData) {
-    let cityButton = document.createElement("button");
-    cityButton.innerHTML = city;
-    cityButton.addEventListener("click", function() {
-      weather();
-    });
-    previousSearchesElement.appendChild(cityButton);
-  }
-}
-}
-
-weather()
